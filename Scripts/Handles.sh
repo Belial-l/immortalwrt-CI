@@ -257,15 +257,35 @@ if [ -f "$RUST_FILE" ]; then
 	fi
 fi
 
-echo "🔧 正在清理无用的系统插件菜单权限..."
+echo " 正在清理无用的系统插件菜单权限..."
 
-# 精准删除 luci-mod-system.json 中的 luci-mod-system-plugins 权限块
-# 使用 sed 匹配从 "luci-mod-system-plugins" 到下一个 "}," 或 "}" 的内容并删除
-if [ -f /usr/share/rpcd/acl.d/luci-mod-system.json ]; then
-    # 注意：这里需要根据实际 JSON 格式调整 sed 命令，或者使用 python/jq 处理
-    # 简单粗暴的方法（如果格式固定）：
-    sed -i '/"luci-mod-system-plugins": {/,/},/d' /usr/share/rpcd/acl.d/luci-mod-system.json
-    echo "✅ 已移除插件菜单权限"
+# 1. 在源码目录中查找 luci-mod-system.json (通常在 feeds/luci 中)
+JSON_FILE=$(find "$PKG_PATH/../feeds/luci" -name "luci-mod-system.json" -path "*/acl.d/*" 2>/dev/null | head -n 1)
+
+# 如果没找到，尝试在 package 目录找
+if [ -z "$JSON_FILE" ]; then
+    JSON_FILE=$(find "$PKG_PATH" -name "luci-mod-system.json" -path "*/acl.d/*" 2>/dev/null | head -n 1)
+fi
+
+# 2. 如果找到了文件，使用 python3 安全删除
+if [ -n "$JSON_FILE" ] && [ -f "$JSON_FILE" ]; then
+    echo "找到源码文件: $JSON_FILE"
+    python3 -c "
+import json, sys
+try:
+    with open('$JSON_FILE', 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    if 'luci-mod-system-plugins' in data:
+        del data['luci-mod-system-plugins']
+        with open('$JSON_FILE', 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        print('✅ 已安全移除 luci-mod-system-plugins 权限块')
+    else:
+        print('ℹ️ 源码中未包含该权限块，无需删除')
+except Exception as e:
+    print(f'❌ 处理 JSON 失败: {e}')
+"
 else
-    echo "⚠️ 未找到 luci-mod-system.json"
+    echo "️ 未找到 luci-mod-system.json 源码文件，请检查路径"
 fi
