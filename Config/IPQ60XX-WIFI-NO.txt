@@ -1,9 +1,9 @@
-# ================= 1. 目标设备 =================
+# 目标设备
 CONFIG_TARGET_qualcommax=y
 CONFIG_TARGET_qualcommax_ipq60xx=y
 CONFIG_TARGET_DEVICE_qualcommax_ipq60xx_DEVICE_link_nn6000-v2=y
 
-# ================= 2. NSS 硬件加速全家桶 (完善补充) =================
+# NSS 硬件加速全家桶
 CONFIG_FEED_nss_packages=n
 CONFIG_FEED_sqm_scripts_nss=n
 CONFIG_PACKAGE_sqm-scripts-nss=y
