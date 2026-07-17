@@ -256,3 +256,16 @@ if [ -f "$RUST_FILE" ]; then
 		echo "rust fix failed; continuing!"
 	fi
 fi
+
+echo "🔧 正在清理无用的系统插件菜单权限..."
+
+# 精准删除 luci-mod-system.json 中的 luci-mod-system-plugins 权限块
+# 使用 sed 匹配从 "luci-mod-system-plugins" 到下一个 "}," 或 "}" 的内容并删除
+if [ -f /usr/share/rpcd/acl.d/luci-mod-system.json ]; then
+    # 注意：这里需要根据实际 JSON 格式调整 sed 命令，或者使用 python/jq 处理
+    # 简单粗暴的方法（如果格式固定）：
+    sed -i '/"luci-mod-system-plugins": {/,/},/d' /usr/share/rpcd/acl.d/luci-mod-system.json
+    echo "✅ 已移除插件菜单权限"
+else
+    echo "⚠️ 未找到 luci-mod-system.json"
+fi
