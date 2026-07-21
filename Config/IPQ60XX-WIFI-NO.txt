@@ -2,7 +2,7 @@
 CONFIG_TARGET_qualcommax=y
 CONFIG_TARGET_qualcommax_ipq60xx=y
 
-# 只启用 NN6000 V2（您的设备）
+# 只启用NN6000 V2
 CONFIG_TARGET_DEVICE_qualcommax_ipq60xx_DEVICE_link_nn6000-v2=y
 
 # 禁用其他所有设备（防止它们干扰编译）
